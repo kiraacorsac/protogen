@@ -1,0 +1,13 @@
+
+// SW INITIALIZATION
+#define ANIMATION_LIBRARY_SIZE 2000 // set number equal to length of the JSON string or more
+
+// HW INITIALIZAITON
+#define LEDS_PER_DISPLAY 255
+#define LED_DISPLAY_WIDTH 16
+#define LED_DISPLAY_HEIGHT 16
+#define DATA_PIN_LEFT 4
+#define DATA_PIN_RIGHT 14
+
+// BEHAVIOUR INITIALIZATION
+#define STARTUP_ANIMATION "idle"

@@ -1,0 +1,105 @@
+{
+    "version": 1,
+    "author": "Anonymous maker",
+    "editor": "wokwi",
+    "parts": [
+        {
+            "type": "wokwi-esp32-devkit-v1",
+            "id": "esp",
+            "top": 207.33,
+            "left": 12.1,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel-canvas",
+            "id": "left-display",
+            "top": -357.49,
+            "left": 146.94,
+            "attrs": {
+                "rows": "16",
+                "cols": "16",
+                "pixelate": "circle",
+                "matrixBrightness": "0",
+                "matrixLayout": "serpentine"
+            }
+        },
+        {
+            "type": "wokwi-neopixel-canvas",
+            "id": "left-display1",
+            "top": -353.25,
+            "left": -360.08,
+            "attrs": {
+                "rows": "16",
+                "cols": "16",
+                "pixelate": "circle",
+                "matrixBrightness": "0",
+                "matrixLayout": "serpentine"
+            }
+        }
+    ],
+    "connections": [
+        [
+            "esp:TX0",
+            "$serialMonitor:RX",
+            "",
+            []
+        ],
+        [
+            "esp:RX0",
+            "$serialMonitor:TX",
+            "",
+            []
+        ],
+        [
+            "esp:GND.1",
+            "left-display:VDD",
+            "black",
+            [
+                "h20.67",
+                "v-183.64"
+            ]
+        ],
+        [
+            "esp:D4",
+            "left-display:DIN",
+            "green",
+            [
+                "h10.46",
+                "v-280.45"
+            ]
+        ],
+        [
+            "esp:VIN",
+            "left-display:VSS",
+            "red",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "esp:VIN",
+            "left-display1:VSS",
+            "red",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "esp:GND.1",
+            "left-display1:VDD",
+            "black",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "left-display1:DIN",
+            "esp:D14",
+            "green",
+            [
+                "v0"
+            ]
+        ]
+    ],
+    "dependencies": {}
+}
