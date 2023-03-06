@@ -1,26 +1,40 @@
 #include "ProtogenHead.h"
 #include "draw.h"
 #include "AnimationBook.h"
+#include "config.h"
 
 int8_t current_frame = 0;
 int8_t debug_current_index = 0;
+String current_animation = STARTUP_ANIMATION;
 
 void animation_frame(ProtogenHead *head, AnimationBook *book)
 {
-    uint16_t duration = book->frame_sequence[current_frame].duration;
+    Animation *animation;
+    for (int8_t i = 0; i < book->animation_count; i++)
+    {
+        Serial.print("Considering ");
+        Serial.println(book->animations[i].animation_name);
+        if (book->animations[i].animation_name.equals(current_animation))
+        {
+            animation = &book->animations[i];
+            Serial.print("Selected animation ");
+            Serial.println(animation->animation_name);
+        }
+    }
+    uint16_t duration = animation->frame_sequence[current_frame].duration;
     Serial.print("Frame ");
     Serial.print(current_frame, DEC);
     Serial.print(" of ");
-    Serial.print(book->frame_count);
+    Serial.print(animation->frame_count);
     Serial.print(" for ");
     Serial.println(duration);
 
     Expression *currentExpression;
-    for (int8_t i = 0; i < book->expression_count; i++)
+    for (int8_t i = 0; i < animation->expression_count; i++)
     {
-        if (book->expressions[i].name.equals(book->frame_sequence[current_frame].expression_name))
+        if (animation->expressions[i].name.equals(animation->frame_sequence[current_frame].expression_name))
         {
-            currentExpression = &book->expressions[i];
+            currentExpression = &animation->expressions[i];
             Serial.print("Expression ");
             Serial.println(currentExpression->name);
         }
@@ -47,5 +61,5 @@ void animation_frame(ProtogenHead *head, AnimationBook *book)
     Serial.println("Done!");
 
     current_frame += 1;
-    current_frame %= book->frame_count;
+    current_frame %= animation->frame_count;
 }

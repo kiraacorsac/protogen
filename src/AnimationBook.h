@@ -49,12 +49,19 @@ typedef struct Frame
     uint16_t duration;
 } Frame;
 
-typedef struct AnimationBook
+typedef struct Animation
 {
+    String animation_name;
     Expression *expressions;
     int8_t expression_count;
     Frame *frame_sequence;
     int8_t frame_count;
+} Animation;
+
+typedef struct AnimationBook
+{
+    Animation *animations;
+    int8_t animation_count;
 } AnimationBook;
 
 AnimationBook *makeAnimationBook()
@@ -70,65 +77,80 @@ AnimationBook *makeAnimationBook()
         Serial.println(error.f_str());
         return nullptr;
     }
+    JsonObject parsedBookJson = parsedBook.as<JsonObject>();
 
-    JsonObject idle = parsedBook["idle"];
-    String mode = parsedBook["mode"];
+    Animation *animationArray = new Animation[parsedBookJson.size()];
+    int8_t animationCount = 0;
 
-    JsonObject expressionsJson = idle["mirror"];
-    JsonArray frameSequenceJson = idle["frame-sequence"];
-
-    int8_t numExpressions = expressionsJson.size();
-    int8_t numFrames = frameSequenceJson.size();
-    Expression *expressions = new Expression[numExpressions];
-    Frame *frameSequence = new Frame[numFrames];
-    Serial.println("Looking up expressions...");
-
-    int8_t expression_i = 0;
-    for (auto expr : expressionsJson)
+    for (auto animJson : parsedBookJson)
     {
+        String animationName = String(animJson.key().c_str());
+        JsonObject animationJson = parsedBook[animationName];
+        String mode = parsedBook["mode"];
 
-        String name = expr.key().c_str();
-        String data = expr.value().as<String>();
-        Expression expression = {name, data};
-        expressions[expression_i] = expression;
-        Serial.print("Expression ");
-        Serial.print(expression_i, DEC);
-        Serial.print(" named ");
-        Serial.print(name);
-        Serial.print(" contains ");
-        Serial.println(data);
+        JsonObject expressionsJson = animationJson["mirror"];
+        JsonArray frameSequenceJson = animationJson["frame-sequence"];
 
-        expression_i++;
+        int8_t numExpressions = expressionsJson.size();
+        int8_t numFrames = frameSequenceJson.size();
+        Expression *expressions = new Expression[numExpressions];
+        Frame *frameSequence = new Frame[numFrames];
+        Serial.println("Looking up expressions...");
+
+        int8_t expression_i = 0;
+        for (auto expr : expressionsJson)
+        {
+
+            String name = expr.key().c_str();
+            String data = expr.value().as<String>();
+            Expression expression = {name, data};
+            expressions[expression_i] = expression;
+            Serial.print("Expression ");
+            Serial.print(expression_i, DEC);
+            Serial.print(" named ");
+            Serial.print(name);
+            Serial.print(" contains ");
+            Serial.println(data);
+
+            expression_i++;
+        }
+
+        int8_t frame_i = 0;
+        for (auto frameObj : frameSequenceJson)
+        {
+            const char *frameName = frameObj["frame"];
+            uint16_t duration = frameObj["duration"];
+            // String durationStr = String(durationChars);
+            // int8_t duration = durationStr.toInt();
+
+            Serial.print("Frame ");
+            Serial.print(frame_i, DEC);
+            Serial.print(" named ");
+            Serial.print(frameName);
+            Serial.print(" for ");
+            Serial.println(duration, DEC);
+
+            Frame frame = {frameName, duration};
+            frameSequence[frame_i] = frame;
+
+            frame_i++;
+        }
+
+        Animation animation = {
+            animationName,
+            expressions,
+            numExpressions,
+            frameSequence,
+            numFrames};
+
+        animationArray[animationCount] = animation;
+        animationCount++;
     }
 
-    int8_t frame_i = 0;
-    for (auto frameObj : frameSequenceJson)
-    {
-        const char *frameName = frameObj["frame"];
-        uint16_t duration = frameObj["duration"];
-        // String durationStr = String(durationChars);
-        // int8_t duration = durationStr.toInt();
-
-        Serial.print("Frame ");
-        Serial.print(frame_i, DEC);
-        Serial.print(" named ");
-        Serial.print(frameName);
-        Serial.print(" for ");
-        Serial.println(duration, DEC);
-
-        Frame frame = {frameName, duration};
-        frameSequence[frame_i] = frame;
-
-        frame_i++;
-    }
-
-    AnimationBook *book = new AnimationBook;
-    book->expressions = expressions;
-    book->expression_count = numExpressions;
-    book->frame_sequence = frameSequence;
-    book->frame_count = numFrames;
-
+    AnimationBook *book = new AnimationBook();
+    book->animations = animationArray;
+    book->animation_count = animationCount;
     return book;
-}
+};
 
 #endif
