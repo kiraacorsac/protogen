@@ -1,25 +1,40 @@
 #include <Arduino.h>
-#include <FastLED.h>
-#include <ArduinoJson.h>
+#include <Adafruit_NeoPixel.h>
+#include "ProtogenHead.h"
 #include "AnimationBook.h"
 #include "config.h"
+#include "loop.h"
 
-CRGB left_leds[LEDS_PER_DISPLAY];
-StaticJsonDocument<ANIMATION_LIBRARY_SIZE> animationBook;
-
+ProtogenHead *head;
+AnimationBook *book;
+uint8_t loop_count = 0;
 void setup()
 {
-  // initialize FastLED
-  FastLED.addLeds<NEOPIXEL, DATA_PIN_LEFT>(left_leds, LEDS_PER_DISPLAY);
+  Serial.begin(115200); // Any baud rate should work
 
-  // initialize AnimationBook
-  DeserializationError animationLibraryError = deserializeJson(animationBook, animationBookJson);
+  Serial.println("=======Proto-proto-proto-gen!=======");
+
+  // initialize LED library
+  Serial.println("LED initialization...");
+
+  head = makeHead();
+  head->left_leds->setBrightness(BRIGHTNESS);
+  head->left_leds->begin();
+
+  head->right_leds->setBrightness(BRIGHTNESS);
+  head->right_leds->begin();
+
+  Serial.println("LED initializaion done.");
+
+  // initialize animations
+  Serial.println("AnimationBook initialization...");
+
+  book = makeAnimationBook();
+  Serial.println("AnimationBook initialization done.");
+  Serial.println("=======Setup finshed=======");
 }
 
 void loop()
 {
-  left_leds[5].b = 255;
-  FastLED.delay(1000);
-  left_leds[5].b = 0;
-  FastLED.delay(1000);
+  animation_frame(head, book);
 }

@@ -25,15 +25,33 @@
         },
         {
             "type": "wokwi-neopixel-canvas",
-            "id": "left-display1",
-            "top": -353.25,
-            "left": -360.08,
+            "id": "right-display",
+            "top": -342.32,
+            "left": -354.62,
             "attrs": {
                 "rows": "16",
                 "cols": "16",
                 "pixelate": "circle",
                 "matrixBrightness": "0",
                 "matrixLayout": "serpentine"
+            }
+        },
+        {
+            "type": "wokwi-resistor",
+            "id": "r1",
+            "top": 82.35,
+            "left": 76.2,
+            "attrs": {
+                "value": "470"
+            }
+        },
+        {
+            "type": "wokwi-resistor",
+            "id": "r2",
+            "top": 101.79,
+            "left": -29.89,
+            "attrs": {
+                "value": "470"
             }
         }
     ],
@@ -60,15 +78,6 @@
             ]
         ],
         [
-            "esp:D4",
-            "left-display:DIN",
-            "green",
-            [
-                "h10.46",
-                "v-280.45"
-            ]
-        ],
-        [
             "esp:VIN",
             "left-display:VSS",
             "red",
@@ -78,7 +87,7 @@
         ],
         [
             "esp:VIN",
-            "left-display1:VSS",
+            "right-display:VSS",
             "red",
             [
                 "h0"
@@ -86,20 +95,48 @@
         ],
         [
             "esp:GND.1",
-            "left-display1:VDD",
+            "right-display:VDD",
             "black",
             [
                 "h0"
             ]
         ],
         [
-            "left-display1:DIN",
+            "esp:D4",
+            "r1:1",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "r1:2",
+            "left-display:DIN",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
             "esp:D14",
+            "r2:2",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "r2:1",
+            "right-display:DIN",
             "green",
             [
                 "v0"
             ]
         ]
     ],
+    "serialMonitor": {
+        "display": "always",
+        "newline": "lf"
+    },
     "dependencies": {}
 }

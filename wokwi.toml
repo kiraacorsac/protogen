@@ -2,4 +2,5 @@
 version = 1
 firmware = '.pio\build\esp32dev\firmware.bin'
 elf = '.pio\build\esp32dev\firmware.elf'
+gdbServerPort=3333
 rfc2217ServerPort = 4000
