@@ -1,38 +1,89 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import Counter from './lib/Counter.svelte'
+  import Brightness from "./lib/Brightness.svelte";
+  import RunAnimation from "./lib/RunAnimation.svelte";
+  let currentIP = "http://192.168.50.186";
+  let isOnline = false;
+  let isConnecting = false;
+
+  async function testConnection() {
+    isConnecting = true;
+    try {
+      let response = await fetch(`${currentIP}/test`);
+      if (response.ok) {
+        isOnline = true;
+      } else {
+        isOnline = false;
+      }
+    } catch (error) {
+      isOnline = false;
+    }
+    isConnecting = false;
+  }
+
+  testConnection();
+  setInterval(testConnection, 10000);
 </script>
 
 <main>
-  <h1>Protogen Control Panel</h1>
+  <div class="status">
+    <span class="header">Protogen Control Panel</span>
 
-  <div class="card">
-    <Counter />
+    <p>
+      Your protogen is {#if isOnline}
+        💚 <span class="online">online</span>{:else}
+        💔 <span class="offline">offline</span
+        >{/if}{#if isConnecting}?{:else}.{/if}
+    </p>
+    <p>
+      <span>Current adress: <input type="text" bind:value={currentIP} /></span>
+    </p>
   </div>
 
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
+  <div class="columns">
+    <div class="column">
+      <div>Animations</div>
+      <div class="animations">
+        <RunAnimation name="hearts" url={currentIP} />
+        <RunAnimation name="idle" url={currentIP} />
+      </div>
+    </div>
+    <div class="column">
+      <div>Brightness</div>
+      <Brightness url={currentIP}/>
+    </div>
+  </div>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  .online {
+    color: greenyellow;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+  .offline {
+    color: red;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+
+  .status {
+    border-width: 4px;
+    border-style: solid;
+    border-color: #1a1a1a;
+    border-radius: 8px;
+    padding: 4px;
+    margin: 4px;
+    font-size: 1.2rem;
   }
-  .read-the-docs {
-    color: #888;
+
+  .header {
+    font-size: 2em;
+    margin: 8px;
+  }
+
+  .columns {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  input[type="number"] {
+    width: 3rem;
   }
 </style>

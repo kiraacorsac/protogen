@@ -5,7 +5,7 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #000;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,11 +29,6 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
 }
 
 .card {
@@ -66,15 +61,44 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.gray-bg {
+  background-color: gray;
+}
+
+.green-bg {
+  background-color: green;
+  animation-name: green-bg-animation;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+}
+
+@keyframes green-bg-animation {
+  0% {
+    background-color: gray;
   }
-  a:hover {
-    color: #747bff;
+  50% {
+    background-color: green;
   }
-  button {
-    background-color: #f9f9f9;
+  100% {
+    background-color: green;
+  }
+}
+
+.red-bg {
+  background-color: red;
+  animation-name: red-bg-animation;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+}
+
+@keyframes red-bg-animation {
+  0% {
+    background-color: gray;
+  }
+  50% {
+    background-color: red;
+  }
+  100% {
+    background-color: red;
   }
 }

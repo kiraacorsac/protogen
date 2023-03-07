@@ -10,11 +10,18 @@
 #include "config.h"
 #include "loop.h"
 
-AsyncWebServer server(80); // Create a web server on port 80
+void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+  debugLogLine("WiFi lost connection. Reason: ");
+  debugLogLine(info.wifi_sta_disconnected.reason);
+  delay(30000);
+  debugLog("Trying to reconnect to ");
+  debugLogLine(WIFI_NAME);
+  WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
+  debugLog(".");
+}
 
-IPAddress local_ip(192, 168, 1, 1);
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
+AsyncWebServer server(80); // Create a web server on port 80
 
 void handleTestConnection(AsyncWebServerRequest *request)
 {
@@ -27,7 +34,7 @@ void handleAnimation(AsyncWebServerRequest *request)
   const char *anim = request->arg("name").c_str();
   strcpy((char *)current_animation, anim);
 
-  request->send(200, "text/plain", "");
+  request->send(200, "text/plain", "ok");
   Serial.print("Setting the animation on ");
   Serial.println(anim);
 
@@ -40,7 +47,7 @@ void handleBrightness(AsyncWebServerRequest *request)
   head->left_leds->setBrightness(brightness);
   head->right_leds->setBrightness(brightness);
 
-  request->send(200, "text/plain", "");
+  request->send(200, "text/plain", "ok");
 
   Serial.print("Setting the brightness on ");
   Serial.println(brightness);
@@ -54,18 +61,25 @@ void setup()
   Serial.println("=======Proto-proto-proto-gen!=======");
 
   // Initialize wifi
+  WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+  debugLog("Trying to connect to ");
+  debugLogLine(WIFI_NAME);
+
   WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(500);
+    delay(2000);
     Serial.print(".");
   }
+
   Serial.print("Connected to WiFi as ");
   Serial.println(WiFi.localIP());
 
   server.on("/test", HTTP_GET, handleTestConnection);
   server.on("/animation", HTTP_GET, handleAnimation);
   server.on("/brightness", HTTP_GET, handleBrightness);
+  DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Origin"), F("*"));
+  DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Headers"), F("content-type"));
 
   // initialize LED library
   Serial.println("LED initialization...");
@@ -88,7 +102,6 @@ void setup()
 
   // Tasks assignment
   server.begin();
-
   xTaskCreatePinnedToCore(animation_frame, "Animation Task", 4086, NULL, 1, NULL, 1);
 }
 
