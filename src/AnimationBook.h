@@ -17,19 +17,57 @@ String animationBookJson = R"(
         "frame-sequence": [
             {
                 "frame": "open",
-                "duration": 1000
+                "duration": 2000,
+                "variability": 1000
             },
             {
                 "frame": "semi",
-                "duration": 50
+                "duration": 50,
+                "variability": 10
             },
             {
                 "frame": "closed",
-                "duration": 250
+                "duration": 200,
+                "variability": 100
             },
             {
                 "frame": "semi",
-                "duration": 50
+                "duration": 50,
+                "variability": 10
+            }
+        ]
+    },
+    "hearts": {
+        "mode": "mirror",
+        "mirror": {
+            "heart1": "000000000000000000000000000000000000000000000000000000FF0FF0000000000FFFFFFF000000000FFFFFFF000000000FFFFFFF0000000000FFFFF000000000000FFF00000000000000F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "heart2": "0000000000000000000000F000F0000000000FFF0FFF00000000FFFFFFFFF0000000FFFFFFFFF0000000FFFFFFFFF0000000FFFFFFFFF00000000FFFFFFF0000000000FFFFF000000000000FFF00000000000000F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "frame-sequence": [
+            {
+                "frame": "heart1",
+                "duration": 150,
+                "variability": 0
+            },
+            {
+                "frame": "heart2",
+                "duration": 150,
+                "variability": 0
+            },
+            {
+                "frame": "heart1",
+                "duration": 150,
+                "variability": 0
+            },
+            {
+                "frame": "heart2",
+                "duration": 150,
+                "variability": 0
+            },
+            {
+                "frame": "heart1",
+                "duration": 450,
+                "variability": 0
             }
         ]
     }
@@ -47,6 +85,7 @@ typedef struct Frame
 {
     String expression_name;
     uint16_t duration;
+    uint16_t variability;
 } Frame;
 
 typedef struct Animation
@@ -120,6 +159,7 @@ AnimationBook *makeAnimationBook()
         {
             const char *frameName = frameObj["frame"];
             uint16_t duration = frameObj["duration"];
+            uint16_t variability = frameObj["variability"];
             // String durationStr = String(durationChars);
             // int8_t duration = durationStr.toInt();
 
@@ -130,7 +170,7 @@ AnimationBook *makeAnimationBook()
             Serial.print(" for ");
             Serial.println(duration, DEC);
 
-            Frame frame = {frameName, duration};
+            Frame frame = {frameName, duration, variability};
             frameSequence[frame_i] = frame;
 
             frame_i++;

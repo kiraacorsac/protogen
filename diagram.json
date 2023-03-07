@@ -53,6 +53,15 @@
             "attrs": {
                 "value": "470"
             }
+        },
+        {
+            "type": "wokwi-pushbutton",
+            "id": "btn1",
+            "top": 104.43,
+            "left": 29.3,
+            "attrs": {
+                "color": "green"
+            }
         }
     ],
     "connections": [
@@ -131,6 +140,22 @@
             "green",
             [
                 "v0"
+            ]
+        ],
+        [
+            "btn1:2.l",
+            "esp:GND.2",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "btn1:1.l",
+            "esp:D5",
+            "green",
+            [
+                "h0"
             ]
         ]
     ],
