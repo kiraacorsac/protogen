@@ -14,6 +14,7 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   debugLogLine("WiFi lost connection. Reason: ");
   debugLogLine(info.wifi_sta_disconnected.reason);
+  WiFi.disconnect(true, true);
   delay(30000);
   debugLog("Trying to reconnect to ");
   debugLogLine(WIFI_NAME);
@@ -57,6 +58,7 @@ void handleBrightness(AsyncWebServerRequest *request)
 void setup()
 {
   Serial.begin(9600); // Any baud rate should work
+  WiFi.disconnect(true, true);
   delay(1000);
   Serial.println("=======Proto-proto-proto-gen!=======");
 
@@ -102,7 +104,7 @@ void setup()
 
   // Tasks assignment
   server.begin();
-  xTaskCreatePinnedToCore(animation_frame, "Animation Task", 4086, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(animation_frame, "Animation Task", 16384, NULL, 1, NULL, 1);
 }
 
 void loop()

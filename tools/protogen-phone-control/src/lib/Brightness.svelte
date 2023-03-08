@@ -38,7 +38,7 @@ Max Brightness: <input
 <div class="slidecontainer">
   <input
     type="range"
-    min="1"
+    min="0"
     max={maxBrightness}
     bind:value={selectedBrightness}
   /> {selectedBrightness}

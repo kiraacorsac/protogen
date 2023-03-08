@@ -45,6 +45,7 @@
       <div class="animations">
         <RunAnimation name="hearts" url={currentIP} />
         <RunAnimation name="idle" url={currentIP} />
+        <RunAnimation name="gay" url={currentIP} />
       </div>
     </div>
     <div class="column">

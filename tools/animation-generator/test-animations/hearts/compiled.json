@@ -1,0 +1,46 @@
+"hearts": {
+    "mode": "mirror",
+    "mirror": {
+        "heart1": "000000000000000000000000000000000000000000000000000000FF0FF0000000000FFFFFFF000000000FFFFFFF000000000FFFFFFF0000000000FFFFF000000000000FFF00000000000000F0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "heart2": "0000000000000000000000F000F0000000000FFF0FFF00000000FFFFFFFFF0000000FFFFFFFFF0000000FFFFFFFFF0000000FFFFFFFFF00000000FFFFFFF0000000000FFFFF000000000000FFF00000000000000F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "frame-sequence": [
+        {
+            "frame": "heart1",
+            "duration": 150,
+            "variability": 0
+        },
+        {
+            "frame": "heart2",
+            "duration": 150,
+            "variability": 0
+        },
+        {
+            "frame": "heart1",
+            "duration": 150,
+            "variability": 0
+        },
+        {
+            "frame": "heart2",
+            "duration": 150,
+            "variability": 0
+        },
+        {
+            "frame": "heart1",
+            "duration": 450,
+            "variability": 0
+        }
+    ],
+    "colors": {
+        "0": {
+            "r": 0,
+            "g": 0,
+            "b": 0
+        },
+        "F": {
+            "r": 255,
+            "g": 105,
+            "b": 180
+        }
+    }
+},

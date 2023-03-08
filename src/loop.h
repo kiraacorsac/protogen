@@ -1,3 +1,4 @@
+#include <Adafruit_NeoPixel.h>
 #include "ProtogenHead.h"
 #include "draw.h"
 #include "AnimationBook.h"
@@ -48,11 +49,12 @@ void animation_frame(void *params)
         {
             for (int8_t y = 0; y < LED_DISPLAY_WIDTH; y++)
             {
-                uint8_t value = getColorMonochromeHex(currentExpression->data, x, y);
+                uint8_t colorID = getColorID(currentExpression->data, x, y);
+                ProtogenColor c = animation->colors[colorID];
                 uint8_t left_index = XY(x, y);
-                head->left_leds->setPixelColor(left_index, head->left_leds->Color(0, value, 0));
+                head->left_leds->setPixelColor(left_index, Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::Color(c.r, c.g, c.b)));
                 uint8_t right_index = XY(LED_DISPLAY_HEIGHT - 1 - x, y);
-                head->right_leds->setPixelColor(right_index, head->left_leds->Color(0, value, 0));
+                head->right_leds->setPixelColor(right_index, Adafruit_NeoPixel::gamma32(Adafruit_NeoPixel::Color(c.r, c.g, c.b)));
             }
         }
 
