@@ -31,4 +31,4 @@
     pip install -r requirements.txt
     python img-to-str.py ./test-animations/smile
     
-    Then you need to manually compile animation library (see `temp.json`), minimize it and put the string in animationBookJson[] in `AnimationBook.h`. 
+Then you need to manually create animation library from the outputs (see `temp.json`), minimize it and put the string in animationBookJson[] in `AnimationBook.h`. 
