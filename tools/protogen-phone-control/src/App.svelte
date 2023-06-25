@@ -1,7 +1,7 @@
 <script lang="ts">
   import Brightness from "./lib/Brightness.svelte";
   import RunAnimation from "./lib/RunAnimation.svelte";
-  let currentIP = "http://192.168.50.186";
+  let currentIP = "http://192.168.154.253";
   let isOnline = false;
   let isConnecting = false;
 
@@ -43,14 +43,17 @@
     <div class="column">
       <div>Animations</div>
       <div class="animations">
+        <RunAnimation name="squiggle" url={currentIP} />
         <RunAnimation name="hearts" url={currentIP} />
         <RunAnimation name="idle" url={currentIP} />
+        <RunAnimation name="smile" url={currentIP} />
+        <RunAnimation name="blush" url={currentIP} />
         <RunAnimation name="gay" url={currentIP} />
       </div>
     </div>
     <div class="column">
       <div>Brightness</div>
-      <Brightness url={currentIP}/>
+      <Brightness url={currentIP} />
     </div>
   </div>
 </main>

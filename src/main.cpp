@@ -2,6 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <mutex>
 
 #include "volatileEnvironment.h"
 
@@ -16,8 +17,11 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
   debugLogLine(info.wifi_sta_disconnected.reason);
   WiFi.disconnect(true, true);
   delay(30000);
-  debugLog("Trying to reconnect to ");
-  debugLogLine(WIFI_NAME);
+  debugLog("Trying to reconnect to '");
+  debugLog(WIFI_NAME);
+  debugLog("' '");
+  debugLog(WIFI_PASSWORD);
+  debugLogLine("'.");
   WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
   debugLog(".");
 }
@@ -33,7 +37,9 @@ void handleTestConnection(AsyncWebServerRequest *request)
 void handleAnimation(AsyncWebServerRequest *request)
 {
   const char *anim = request->arg("name").c_str();
+  animation_mutex.lock();
   strcpy((char *)current_animation, anim);
+  animation_mutex.unlock();
 
   request->send(200, "text/plain", "ok");
   Serial.print("Setting the animation on ");
@@ -58,24 +64,20 @@ void handleBrightness(AsyncWebServerRequest *request)
 void setup()
 {
   Serial.begin(9600); // Any baud rate should work
-  WiFi.disconnect(true, true);
   delay(1000);
   Serial.println("=======Proto-proto-proto-gen!=======");
-
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect(true, true);
   // Initialize wifi
   WiFi.onEvent(WiFiStationDisconnected, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
-  debugLog("Trying to connect to ");
-  debugLogLine(WIFI_NAME);
+  debugLog("Trying to reconnect to '");
+  debugLog(WIFI_NAME);
+  debugLog("' '");
+  debugLog(WIFI_PASSWORD);
+  debugLogLine("'.");
 
   WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(2000);
-    Serial.print(".");
-  }
 
-  Serial.print("Connected to WiFi as ");
-  Serial.println(WiFi.localIP());
 
   server.on("/test", HTTP_GET, handleTestConnection);
   server.on("/animation", HTTP_GET, handleAnimation);
@@ -102,13 +104,20 @@ void setup()
   Serial.println("AnimationBook initialization done.");
   Serial.println("=======Setup finshed=======");
 
+  xTaskCreatePinnedToCore(animation_frame, "Animation Task", 16384, NULL, 1, NULL, 1);
+
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(2000);
+    Serial.print(".");
+  }
+
+  Serial.print("Connected to WiFi as ");
+  Serial.println(WiFi.localIP());
   // Tasks assignment
   server.begin();
-  xTaskCreatePinnedToCore(animation_frame, "Animation Task", 16384, NULL, 1, NULL, 1);
 }
 
 void loop()
 {
-  // server.handleClient(); // Listen for incoming client requests
-  // animation_frame(nullptr);
 }

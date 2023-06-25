@@ -2,6 +2,7 @@
   "files.associations": {
     "new": "cpp",
     "random": "cpp",
-    "system_error": "cpp"
+    "system_error": "cpp",
+    "mutex": "cpp"
   }
 }

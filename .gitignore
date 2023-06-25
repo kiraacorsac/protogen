@@ -5,3 +5,4 @@
 .vscode/ipch
 tools/**/env
 src/config.h
+shoppingcart.txt

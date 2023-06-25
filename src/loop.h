@@ -13,12 +13,16 @@ void animation_frame(void *params)
 {
     while (true)
     {
+        animation_mutex.lock();
+        String local_current_animation((char *)current_animation);
+        animation_mutex.unlock();
+
         Animation *animation;
         for (int8_t i = 0; i < book->animation_count; i++)
         {
             // Serial.print("Considering ");
             // Serial.println(book->animations[i].animation_name);
-            if (book->animations[i].animation_name.equals((const char *)current_animation))
+            if (book->animations[i].animation_name.equals(local_current_animation))
             {
                 animation = &book->animations[i];
                 // Serial.print("Selected animation ");
