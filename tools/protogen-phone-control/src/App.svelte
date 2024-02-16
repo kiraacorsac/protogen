@@ -1,6 +1,8 @@
 <script lang="ts">
   import Brightness from "./lib/Brightness.svelte";
+  import FanSpeed from "./lib/FanSpeed.svelte";
   import RunAnimation from "./lib/RunAnimation.svelte";
+  import Message from "./lib/Message.svelte";
   let currentIP = "http://192.168.154.253";
   let isOnline = false;
   let isConnecting = false;
@@ -45,7 +47,7 @@
       <div class="animations">
         <RunAnimation name="squiggle" url={currentIP} />
         <RunAnimation name="hearts" url={currentIP} />
-        <RunAnimation name="idle" url={currentIP} />
+        <RunAnimation name="confuzed" url={currentIP} />
         <RunAnimation name="smile" url={currentIP} />
         <RunAnimation name="blush" url={currentIP} />
         <RunAnimation name="gay" url={currentIP} />
@@ -54,6 +56,9 @@
     <div class="column">
       <div>Brightness</div>
       <Brightness url={currentIP} />
+      <div>Fan Speed</div>
+      <FanSpeed url={currentIP} /> 
+      <Message url={currentIP}/>
     </div>
   </div>
 </main>

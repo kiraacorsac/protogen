@@ -4,5 +4,8 @@
     "random": "cpp",
     "system_error": "cpp",
     "mutex": "cpp"
-  }
+  },
+  "cSpell.words": [
+    "Protogen"
+  ]
 }

@@ -11,8 +11,11 @@
 #include "config.h"
 #include "loop.h"
 
+#define MAIN
+#ifdef MAIN
 void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
+
   debugLogLine("WiFi lost connection. Reason: ");
   debugLogLine(info.wifi_sta_disconnected.reason);
   WiFi.disconnect(true, true);
@@ -23,6 +26,8 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
   debugLog(WIFI_PASSWORD);
   debugLogLine("'.");
   WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
+
+  head->telemetry_needs_update = true;
   debugLog(".");
 }
 
@@ -34,18 +39,27 @@ void handleTestConnection(AsyncWebServerRequest *request)
   request->send(200, "text/plain", "working");
 }
 
+void handleMessage(AsyncWebServerRequest *request)
+{
+  const char *msg = request->arg("value").c_str();
+  strncpy((char *)head->telemetry_message, msg, 21);
+
+  head->telemetry_needs_update = true;
+  request->send(200, "text/plain", "ok");
+}
+
 void handleAnimation(AsyncWebServerRequest *request)
 {
-  const char *anim = request->arg("name").c_str();
+  const char *anim = request->arg("value").c_str();
   animation_mutex.lock();
   strcpy((char *)current_animation, anim);
   animation_mutex.unlock();
 
-  request->send(200, "text/plain", "ok");
   Serial.print("Setting the animation on ");
   Serial.println(anim);
 
-  return;
+  head->telemetry_needs_update = true;
+  request->send(200, "text/plain", "ok");
 }
 
 void handleBrightness(AsyncWebServerRequest *request)
@@ -54,13 +68,25 @@ void handleBrightness(AsyncWebServerRequest *request)
   head->left_leds->setBrightness(brightness);
   head->right_leds->setBrightness(brightness);
 
-  request->send(200, "text/plain", "ok");
 
   Serial.print("Setting the brightness on ");
   Serial.println(brightness);
 
-  return;
+  head->telemetry_needs_update = true;
+  request->send(200, "text/plain", "ok");
 }
+
+void handleFanSpeed(AsyncWebServerRequest *request)
+{
+  uint8_t fan_speed = request->arg("value").toInt();
+  head->fan_speed = fan_speed;
+
+  Serial.print("Setting fan speed to ");
+  Serial.println(fan_speed);
+  head->telemetry_needs_update = true;
+  request->send(200, "text/plain", "ok");
+}
+
 void setup()
 {
   Serial.begin(9600); // Any baud rate should work
@@ -82,29 +108,26 @@ void setup()
   server.on("/test", HTTP_GET, handleTestConnection);
   server.on("/animation", HTTP_GET, handleAnimation);
   server.on("/brightness", HTTP_GET, handleBrightness);
+  server.on("/fanSpeed", HTTP_GET, handleFanSpeed);
+  server.on("/telemetryMessage", HTTP_GET, handleMessage);
   DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Origin"), F("*"));
   DefaultHeaders::Instance().addHeader(F("Access-Control-Allow-Headers"), F("content-type"));
 
   // initialize LED library
-  Serial.println("LED initialization...");
+  Serial.println("Protogen initialization...");
 
   head = makeHead();
-  head->left_leds->setBrightness(BRIGHTNESS);
-  head->left_leds->begin();
 
-  head->right_leds->setBrightness(BRIGHTNESS);
-  head->right_leds->begin();
-
-  Serial.println("LED initializaion done.");
+  Serial.println("Protogen initialization done.");
 
   // initialize animations
   Serial.println("AnimationBook initialization...");
 
   book = makeAnimationBook();
   Serial.println("AnimationBook initialization done.");
-  Serial.println("=======Setup finshed=======");
+  Serial.println("=======Setup finished=======");
 
-  xTaskCreatePinnedToCore(animation_frame, "Animation Task", 16384, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(protogen_loop, "Animation Task", 16384, NULL, 1, NULL, 1);
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -114,6 +137,7 @@ void setup()
 
   Serial.print("Connected to WiFi as ");
   Serial.println(WiFi.localIP());
+  head->telemetry_needs_update = true;
   // Tasks assignment
   server.begin();
 }
@@ -121,3 +145,4 @@ void setup()
 void loop()
 {
 }
+#endif

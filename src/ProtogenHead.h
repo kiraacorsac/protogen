@@ -2,22 +2,67 @@
 #define PROTOGENHEAD_H
 
 #include <Adafruit_NeoPixel.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SH1106.h>
 #include "config.h"
 
 typedef struct ProtogenHead
 {
     Adafruit_NeoPixel *left_leds;
     Adafruit_NeoPixel *right_leds;
+    Adafruit_SH1106 *telemetry;
+    bool telemetry_needs_update;
+    int fan_speed;
+    char telemetry_message[21];
 } ProtogenHead;
 
 Adafruit_NeoPixel left_display(LEDS_PER_DISPLAY, DATA_PIN_LEFT, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel right_display(LEDS_PER_DISPLAY, DATA_PIN_RIGHT, NEO_GRB + NEO_KHZ800);
+Adafruit_SH1106 telemetry_display(TELEMETRY_SDA, TELEMETRY_SCL);
 
 ProtogenHead *makeHead()
 {
     ProtogenHead *head = new ProtogenHead();
+    Serial.println("  display initialization");
+
     head->left_leds = &left_display;
+    head->left_leds->setBrightness(DEFAULT_BRIGHTNESS);
+    head->left_leds->begin();
+
     head->right_leds = &right_display;
+    head->right_leds->setBrightness(DEFAULT_BRIGHTNESS);
+    head->right_leds->begin();
+
+    Serial.println("  telemetry initialization");
+    head->telemetry = &telemetry_display;
+    head->telemetry->begin(SH1106_EXTERNALVCC, 0x3C);
+    head->telemetry->display();
+    head->telemetry->clearDisplay();
+    head->telemetry->setTextSize(1);
+    head->telemetry->setTextColor(WHITE);
+    head->telemetry->cp437(true);
+    head->telemetry->setCursor(0, 0); // Start at top-left corner
+    head->telemetry->println("Proto-proto-protogen!\n");
+    head->telemetry->setTextSize(2);
+    head->telemetry->println("\\(^w^)/");
+    head->telemetry->setTextSize(1);
+    head->telemetry->println("");
+    head->telemetry->println("Looking for wifi: ");
+    head->telemetry->println(WIFI_NAME);
+    head->telemetry->println(WIFI_PASSWORD);
+    head->telemetry->display();
+
+    strncpy(head->telemetry_message, "", sizeof(head->telemetry_message));
+
+    Serial.println("  fan initialization");
+    pinMode(FAN_PIN_LEFT, OUTPUT);
+    ledcAttachPin(FAN_PIN_LEFT, FAN_CCHANNEL);
+    pinMode(FAN_PIN_RIGHT, OUTPUT);
+    ledcAttachPin(FAN_PIN_RIGHT, FAN_CCHANNEL);
+    ledcSetup(FAN_CCHANNEL, FAN_PWM_FREQ, 8);
+    head->fan_speed = DEFAULT_FAN_SPEED;
     return head;
 }
 

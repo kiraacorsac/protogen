@@ -1,4 +1,5 @@
 #include "WiFi.h"
+// #define WIFITEST
 #ifdef WIFITEST
 String get_encryption_type(wifi_auth_mode_t encryptionType)
 {

@@ -1,32 +1,9 @@
 <script lang="ts">
+  import ProtogenConfirmationButton from "./ProtogenConfirmationButton.svelte";
+
   export let url;
   let maxBrightness = 100;
   let selectedBrightness = 10;
-  let button;
-
-  async function setBrightness() {
-    let isOK = false;
-    try {
-      button.classList.add("gray-bg");
-      let response = await fetch(`${url}/brightness?value=${selectedBrightness}`);
-      isOK = response.ok;
-    } catch (error) {
-      isOK = false;
-    }
-    if (isOK) {
-      button.classList.add("green-bg");
-      setTimeout(() => {
-        button.classList.remove("green-bg");
-        button.classList.remove("gray-bg");
-      }, 500);
-    } else {
-      button.classList.add("red-bg");
-      setTimeout(() => {
-        button.classList.remove("red-bg");
-        button.classList.remove("gray-bg");
-      }, 500);
-    }
-  }
 </script>
 
 Max Brightness: <input
@@ -41,8 +18,16 @@ Max Brightness: <input
     min="0"
     max={maxBrightness}
     bind:value={selectedBrightness}
-  /> {selectedBrightness}
+  />
+  {selectedBrightness}
 </div>
-<button bind:this={button} on:click={setBrightness}>Set Brightness</button>
+
+<ProtogenConfirmationButton
+  path="brightness"
+  title="Set Brightness"
+  {url}
+  value={selectedBrightness}
+/>
+
 <style>
 </style>
