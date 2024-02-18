@@ -27,10 +27,9 @@
 #define DATA_PIN_LEFT 32
 #define DATA_PIN_RIGHT 33
 
-#define FAN_PIN_LEFT 25
-#define FAN_PIN_RIGHT 26
 #define FAN_CCHANNEL 0
 #define FAN_PWM_FREQ 20
+#define FAN_PWM_PIN 25
 
 #define TELEMETRY_SDA 21 // does not change the pin ESP is using
 #define TELEMETRY_SCL 22 // does not change the pin ESP is using

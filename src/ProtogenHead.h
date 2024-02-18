@@ -57,10 +57,8 @@ ProtogenHead *makeHead()
     strncpy(head->telemetry_message, "", sizeof(head->telemetry_message));
 
     Serial.println("  fan initialization");
-    pinMode(FAN_PIN_LEFT, OUTPUT);
-    ledcAttachPin(FAN_PIN_LEFT, FAN_CCHANNEL);
-    pinMode(FAN_PIN_RIGHT, OUTPUT);
-    ledcAttachPin(FAN_PIN_RIGHT, FAN_CCHANNEL);
+    pinMode(FAN_PWM_PIN, OUTPUT);
+    ledcAttachPin(FAN_PWM_PIN, FAN_CCHANNEL);
     ledcSetup(FAN_CCHANNEL, FAN_PWM_FREQ, 8);
     head->fan_speed = DEFAULT_FAN_SPEED;
     return head;
