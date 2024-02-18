@@ -71,6 +71,7 @@ void animation_tick()
             // Serial.println(animation->animation_name);
         }
     }
+    current_frame %= animation->frame_count;
     uint16_t originalDuration = animation->frame_sequence[current_frame].duration;
     uint16_t variability = animation->frame_sequence[current_frame].variability;
     uint16_t duration = originalDuration + random(variability) - (variability / 2);
