@@ -38,8 +38,8 @@ ProtogenHead *makeHead()
     Serial.println("  telemetry initialization");
     head->telemetry = &telemetry_display;
     head->telemetry->begin(SH1106_EXTERNALVCC, 0x3C);
-    head->telemetry->display();
     head->telemetry->clearDisplay();
+    head->telemetry->setRotation(2);
     head->telemetry->setTextSize(1);
     head->telemetry->setTextColor(WHITE);
     head->telemetry->cp437(true);
@@ -52,7 +52,9 @@ ProtogenHead *makeHead()
     head->telemetry->println("Looking for wifi: ");
     head->telemetry->println(WIFI_NAME);
     head->telemetry->println(WIFI_PASSWORD);
+
     head->telemetry->display();
+    
 
     strncpy(head->telemetry_message, "", sizeof(head->telemetry_message));
 

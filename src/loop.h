@@ -15,7 +15,11 @@ void telemetry_tick()
 {
     head->telemetry->clearDisplay();
     head->telemetry->setCursor(0, 0);
+
+    head->telemetry->setTextSize(2);
+    head->telemetry->println((char *)head->telemetry_message);
     head->telemetry->setTextSize(1);
+    
     head->telemetry->print("WiFi: ");
     if (WiFi.status() == WL_CONNECTED)
     {
@@ -26,23 +30,15 @@ void telemetry_tick()
     {
         head->telemetry->println("");
         head->telemetry->setTextSize(2);
-        head->telemetry->println("Disconnected :<");
+        head->telemetry->println("No WiFi :<");
         head->telemetry->setTextSize(1);
     }
 
-    head->telemetry->print("Fans: ");
-    head->telemetry->print(head->fan_speed);
-
-    head->telemetry->print("   LEDs: ");
-    head->telemetry->println(head->left_leds->getBrightness());
-    head->telemetry->print("Anim: ");
+    head->telemetry->print(head->left_leds->getBrightness());
+    head->telemetry->print("/");
     head->telemetry->print((char *)current_animation);
     head->telemetry->print("/");
     head->telemetry->println(current_frame);
-
-    head->telemetry->setTextSize(2);
-    head->telemetry->println((char *)head->telemetry_message);
-    head->telemetry->setTextSize(1);
 
     head->telemetry->display();
 }
@@ -123,7 +119,7 @@ void protogen_loop(void *params)
     while (true)
     {
         animation_tick();
-        fan_tick();
+        // fan_tick();
         telemetry_tick();
     }
 }
