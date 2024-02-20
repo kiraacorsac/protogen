@@ -27,7 +27,7 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
   debugLogLine("'.");
   WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
 
-  head->telemetry_needs_update = true;
+  xSemaphoreGive(head->telemetry_needs_update);
   debugLog(".");
 }
 
@@ -44,7 +44,7 @@ void handleMessage(AsyncWebServerRequest *request)
   const char *msg = request->arg("value").c_str();
   strncpy((char *)head->telemetry_message, msg, 21);
 
-  head->telemetry_needs_update = true;
+  xSemaphoreGive(head->telemetry_needs_update);
   request->send(200, "text/plain", "ok");
 }
 
@@ -58,7 +58,7 @@ void handleAnimation(AsyncWebServerRequest *request)
   Serial.print("Setting the animation on ");
   Serial.println(anim);
 
-  head->telemetry_needs_update = true;
+  xSemaphoreGive(head->telemetry_needs_update);
   request->send(200, "text/plain", "ok");
 }
 
@@ -72,7 +72,7 @@ void handleBrightness(AsyncWebServerRequest *request)
   Serial.print("Setting the brightness on ");
   Serial.println(brightness);
 
-  head->telemetry_needs_update = true;
+  xSemaphoreGive(head->telemetry_needs_update);
   request->send(200, "text/plain", "ok");
 }
 
@@ -83,7 +83,7 @@ void handleFanSpeed(AsyncWebServerRequest *request)
 
   Serial.print("Setting fan speed to ");
   Serial.println(fan_speed);
-  head->telemetry_needs_update = true;
+  xSemaphoreGive(head->telemetry_needs_update);
   request->send(200, "text/plain", "ok");
 }
 
@@ -127,7 +127,9 @@ void setup()
   Serial.println("AnimationBook initialization done.");
   Serial.println("=======Setup finished=======");
 
-  xTaskCreatePinnedToCore(protogen_loop, "Animation Task", 16384, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(animation_loop, "Animation Task", 16384, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(telemetry_loop, "Telemetry Task", 16384, NULL, 1, NULL, 1);
+  // xTaskCreatePinnedToCore(fan_loop, "Fan Task", 16384, NULL, 1, NULL, 1); //unfinished task
 
   while (WiFi.status() != WL_CONNECTED)
   {
@@ -137,7 +139,7 @@ void setup()
 
   Serial.print("Connected to WiFi as ");
   Serial.println(WiFi.localIP());
-  head->telemetry_needs_update = true;
+  xSemaphoreGive(head->telemetry_needs_update);
   // Tasks assignment
   server.begin();
 }

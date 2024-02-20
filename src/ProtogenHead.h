@@ -7,13 +7,16 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH1106.h>
 #include "config.h"
+#include <Arduino.h>
+
+
 
 typedef struct ProtogenHead
 {
     Adafruit_NeoPixel *left_leds;
     Adafruit_NeoPixel *right_leds;
     Adafruit_SH1106 *telemetry;
-    bool telemetry_needs_update;
+    SemaphoreHandle_t telemetry_needs_update;
     int fan_speed;
     char telemetry_message[21];
 } ProtogenHead;
@@ -38,8 +41,7 @@ ProtogenHead *makeHead()
     Serial.println("  telemetry initialization");
     head->telemetry = &telemetry_display;
     head->telemetry->begin(SH1106_EXTERNALVCC, 0x3C);
-    head->telemetry->display();
-    head->telemetry->clearDisplay();
+    head->telemetry->setRotation(2);
     head->telemetry->setTextSize(1);
     head->telemetry->setTextColor(WHITE);
     head->telemetry->cp437(true);
@@ -54,13 +56,15 @@ ProtogenHead *makeHead()
     head->telemetry->println(WIFI_PASSWORD);
     head->telemetry->display();
 
+    head->telemetry_needs_update = xSemaphoreCreateMutex();
+
     strncpy(head->telemetry_message, "", sizeof(head->telemetry_message));
 
-    Serial.println("  fan initialization");
-    pinMode(FAN_PWM_PIN, OUTPUT);
-    ledcAttachPin(FAN_PWM_PIN, FAN_CCHANNEL);
-    ledcSetup(FAN_CCHANNEL, FAN_PWM_FREQ, 8);
-    head->fan_speed = DEFAULT_FAN_SPEED;
+    // Serial.println("  fan initialization");
+    // pinMode(FAN_PWM_PIN, OUTPUT);
+    // ledcAttachPin(FAN_PWM_PIN, FAN_CCHANNEL);
+    // ledcSetup(FAN_CCHANNEL, FAN_PWM_FREQ, 8);
+    // head->fan_speed = DEFAULT_FAN_SPEED;
     return head;
 }
 
