@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <WiFi.h>
+#include <HTTPClient.h>
 #include <ESPAsyncWebServer.h>
 #include <mutex>
 
@@ -13,9 +14,9 @@
 
 #define MAIN
 #ifdef MAIN
+
 void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-
   debugLogLine("WiFi lost connection. Reason: ");
   debugLogLine(info.wifi_sta_disconnected.reason);
   WiFi.disconnect(true, true);
@@ -25,6 +26,7 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
   debugLog("' '");
   debugLog(WIFI_PASSWORD);
   debugLogLine("'.");
+  
   WiFi.begin(WIFI_NAME, WIFI_PASSWORD);
 
   head->telemetry_needs_update = true;
@@ -92,6 +94,7 @@ void setup()
   Serial.begin(9600); // Any baud rate should work
   delay(1000);
   Serial.println("=======Proto-proto-proto-gen!=======");
+  
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(true, true);
   // Initialize wifi
@@ -135,14 +138,26 @@ void setup()
     Serial.print(".");
   }
 
-  Serial.print("Connected to WiFi as ");
+  Serial.print("\nConnected to WiFi as ");
   Serial.println(WiFi.localIP());
+
   head->telemetry_needs_update = true;
   // Tasks assignment
   server.begin();
 }
 
+unsigned long last_register_time = 0;
 void loop()
 {
+  if (millis() - last_register_time > 5000) {
+    last_register_time = millis();
+    if(WiFi.status() == WL_CONNECTED) {
+      HTTPClient http;
+      String url = "http://" + WiFi.gatewayIP().toString() + ":5173/api/register?ip=" + WiFi.localIP().toString();
+      http.begin(url);
+      http.GET();
+      http.end();
+    }
+  }
 }
 #endif

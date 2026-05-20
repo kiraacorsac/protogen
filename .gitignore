@@ -6,3 +6,4 @@
 tools/**/env
 src/config.h
 shoppingcart.txt
+node_modules/

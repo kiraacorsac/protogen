@@ -3,13 +3,30 @@
   import FanSpeed from "./lib/FanSpeed.svelte";
   import RunAnimation from "./lib/RunAnimation.svelte";
   import Message from "./lib/Message.svelte";
-  let currentIP = "http://192.168.154.253";
+  let discoveredIPs: string[] = [];
+  let currentIP = "";
   let isOnline = false;
   let isConnecting = false;
 
   async function testConnection() {
-    isConnecting = true;
+    if (isConnecting) return;
     try {
+      // First, get the latest IP list from the Dev Server backend
+      let discoverResponse = await fetch('/api/get-ip');
+      if (discoverResponse.ok) {
+        let json = await discoverResponse.json();
+        if (json.ips) {
+          discoveredIPs = json.ips;
+          // Set the current IP to the first discovered one if currently empty
+          if (!currentIP && discoveredIPs.length > 0) {
+            currentIP = discoveredIPs[0];
+          }
+        }
+      }
+
+      if (!currentIP) return;
+
+      isConnecting = true;
       let response = await fetch(`${currentIP}/test`);
       if (response.ok) {
         isOnline = true;
@@ -23,25 +40,43 @@
   }
 
   testConnection();
-  setInterval(testConnection, 10000);
+  setInterval(testConnection, 5000);
 </script>
 
 <main>
   <div class="status">
     <span class="header">Protogen Control Panel</span>
 
-    <p>
-      Your protogen is {#if isOnline}
-        💚 <span class="online">online</span>{:else}
-        💔 <span class="offline">offline</span
-        >{/if}{#if isConnecting}?{:else}.{/if}
-    </p>
-    <p>
-      <span>Current adress: <input type="text" bind:value={currentIP} /></span>
-    </p>
+    {#if discoveredIPs.length === 0}
+      <div class="discovery-box">
+        <p>📡 <strong>Looking for Protogen...</strong></p>
+        <p class="discovery-hint">Make sure your Protogen is turned on and connected to the hotspot.</p>
+        <div class="spinner"></div>
+      </div>
+    {:else}
+      <p>
+        Your protogen is {#if isOnline}
+          💚 <span class="online">online</span>{:else}
+          💔 <span class="offline">offline</span
+          >{/if}{#if isConnecting}?{:else}.{/if}
+      </p>
+      
+      <div class="ip-selector">
+        <label for="ip-select">Connected to:</label>
+        {#if discoveredIPs.length === 1}
+          <span class="single-ip">{currentIP}</span>
+        {:else}
+          <select id="ip-select" bind:value={currentIP} on:change={testConnection}>
+            {#each discoveredIPs as ip}
+              <option value={ip}>{ip}</option>
+            {/each}
+          </select>
+        {/if}
+      </div>
+    {/if}
   </div>
 
-  <div class="columns">
+  <div class="columns" style={discoveredIPs.length === 0 ? "opacity: 0.5; pointer-events: none;" : ""}>
     <div class="column">
       <div>Animations</div>
       <div class="animations">
@@ -90,6 +125,61 @@
     display: grid;
     grid-gap: 10px;
     grid-template-columns: 1fr 1fr;
+    transition: all 0.3s;
+  }
+
+  .discovery-box {
+    margin: 20px 0;
+    padding: 15px;
+    border: 2px dashed #444;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .discovery-hint {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 5px;
+  }
+
+  .spinner {
+    border: 4px solid rgba(255,255,255,0.1);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border-left-color: #09f;
+    animation: spin 1s linear infinite;
+    margin: 15px auto;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .ip-selector {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    background: #111;
+    padding: 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .single-ip {
+    color: #4CAF50;
+    font-weight: bold;
+    font-family: monospace;
+    margin-left: 5px;
+  }
+
+  select {
+    background: #222;
+    color: white;
+    border: 1px solid #444;
+    padding: 4px;
+    border-radius: 4px;
+    margin-left: 5px;
   }
 
   input[type="number"] {
